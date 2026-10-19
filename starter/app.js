@@ -1,6 +1,10 @@
 /* Q1 : pendant les 1.5s le user risque de recharger la page
 Q2 : La classe `is-loading` est ajoutée pendant le chargement, puis retirée lorsqu'il est terminé. Elle permet d'afficher visuellement que l'action est en cours.
 Q3 : Un skeleton montre la structure et l'emplacement du contenu qui va apparaître, ce qui aide l'utilisateur à comprendre ce qui se charge. Un simple rond indique seulement qu'une action est en cours.
+Q4 : min(var(--i), 10) limite l'indice d'animation à 10. Avec 200 étudiants, les délais n'augmentent donc pas indéfiniment : les étudiants après le dixième ont le même délai maximal.
+Q5 : À chaque chargement, afficher() recrée les lignes et leur ajoute la classe is-entering. L'animation CSS démarre donc automatiquement sur ces nouveaux éléments, sans avoir à la relancer avec restart().
+Q6 : ease-in fait démarrer la sortie doucement puis l'accélère, comme un élément qui s'éloigne. ease-out convient à l'entrée : elle démarre vite puis ralentit en arrivant.
+
 */
 
 /* =========================================================
@@ -87,6 +91,8 @@ function afficher(etudiants) {
   etudiants.forEach((etu, i) => {
     const li = creerLigne(etu);
     // TODO 2.1 : donner le rang i à la variable CSS --i, et ajouter la classe is-entering
+    li.style.setProperty('--i', i);
+    li.classList.add('is-entering');
     liste.append(li);
   });
   majCompteur();
@@ -94,10 +100,14 @@ function afficher(etudiants) {
 
 function retirer(li) {
   // TODO 2.6 : ignorer un deuxième clic pendant la sortie
+  if (li.classList.contains('is-removing')) return;
   // TODO 2.3 : ajouter is-removing, et ne retirer l'élément qu'à la fin de l'animation
-  li.remove();
-  majCompteur();
-  // TODO 3.2 : toast de confirmation
+  li.classList.add('is-removing');
+  li.addEventListener('animationend', () => {
+    li.remove();
+    majCompteur();
+    // TODO 3.2 : toast de confirmation
+  }, { once: true });
 }
 
 /* ---------------------------------------------------------
