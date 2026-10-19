@@ -4,6 +4,7 @@ Q3 : Un skeleton montre la structure et l'emplacement du contenu qui va apparaî
 Q4 : min(var(--i), 10) limite l'indice d'animation à 10. Avec 200 étudiants, les délais n'augmentent donc pas indéfiniment : les étudiants après le dixième ont le même délai maximal.
 Q5 : À chaque chargement, afficher() recrée les lignes et leur ajoute la classe is-entering. L'animation CSS démarre donc automatiquement sur ces nouveaux éléments, sans avoir à la relancer avec restart().
 Q6 : ease-in fait démarrer la sortie doucement puis l'accélère, comme un élément qui s'éloigne. ease-out convient à l'entrée : elle démarre vite puis ralentit en arrivant.
+Q7 : "await ... finished" attend la fin réelle de l'animation. Un `setTimeout` pourrait finir trop tôt ou trop tard si la durée de l'animation change.
 
 */
 
@@ -68,18 +69,20 @@ async function charger() {
 
   // TODO 1.4 : try / catch / finally (voir l'énoncé)
   // TODO 1.5 : désactiver le bouton pendant le chargement
-  
-  
+
+
   try {
     btnCharger.disabled = true;
     const etudiants = await apiGetEtudiants();
     afficher(etudiants);
+    toast(`${etudiants.length} étudiants chargés`);
   } catch (e) {
+    toast('Chargement impossible. Réessayez.', 'erreur');
   } finally {
     btnCharger.disabled = false;
     liste.classList.remove('is-loading');
   }
-  
+
   // TODO 3.2 : toasts de succès et d'erreur
 }
 
@@ -101,12 +104,13 @@ function afficher(etudiants) {
 function retirer(li) {
   // TODO 2.6 : ignorer un deuxième clic pendant la sortie
   if (li.classList.contains('is-removing')) return;
+  const nom = li.querySelector('strong').textContent;
   // TODO 2.3 : ajouter is-removing, et ne retirer l'élément qu'à la fin de l'animation
   li.classList.add('is-removing');
   li.addEventListener('animationend', () => {
     li.remove();
     majCompteur();
-    // TODO 3.2 : toast de confirmation
+    toast(`${nom} retiré de la liste`);
   }, { once: true });
 }
 
@@ -117,7 +121,22 @@ function retirer(li) {
 async function toast(message, type = 'succes') {
   console.log(`[${type}] ${message}`);
   // TODO 3.1 : créer le toast, l'animer avec animate(), attendre, le faire sortir, le retirer
+  const element = document.createElement('div');
+  element.classList.add('toast', `toast--${type}`);
+  element.textContent = message;
+  toasts.append(element);
+  // Animation d'entrée
+  const etapes = [
+    { opacity: 0, translate: '0 20px' },
+    { opacity: 1, translate: '0 0' }
+  ];
+
+  await element.animate(etapes, { duration: 300, easing: 'ease-out', fill: 'both' }).finished;
+  await attendre(3000);
+  await element.animate(etapes, { duration: 250, easing: 'ease-in', direction: 'reverse', fill: 'both' }).finished;
+  element.remove();
 }
+
 
 /* ---------------------------------------------------------
    BONUS — FLIP
