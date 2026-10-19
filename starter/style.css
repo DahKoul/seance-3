@@ -42,6 +42,9 @@ main { max-width: 760px; margin: 0 auto; padding: 0 1.5rem 6rem; }
 
 /* TODO 1.5 : quand #zone a la classe .is-loading,
    afficher .skeleton (display: grid) et masquer .liste */
+#zone.is-loading .skeleton { display: grid; }
+#zone.is-loading .liste { display: none; }
+
 
 .sk-ligne { position: relative; overflow: hidden; display: flex; align-items: center; gap: .9rem;
             padding: .7rem .9rem; background: var(--light); border-radius: var(--radius); }
@@ -55,8 +58,20 @@ main { max-width: 760px; margin: 0 auto; padding: 0 1.5rem 6rem; }
    Un pseudo-élément .sk-ligne::after, qui couvre toute la ligne (inset: 0),
    avec un dégradé linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent).
    Il part de translate: -100% 0 et traverse la ligne en boucle (1.2s, infini). */
+.sk-ligne::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
+  transform: translateX(-100%);
+  animation: reflet 1.2s infinite;
+}
 
 /* TODO 1.6 : @keyframes reflet */
+@keyframes reflet {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
 
 /* =========================================================
    NIVEAU 2 — ARRIVÉE ET SUPPRESSION

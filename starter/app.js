@@ -1,3 +1,8 @@
+/* Q1 : pendant les 1.5s le user risque de recharger la page
+Q2 : La classe `is-loading` est ajoutée pendant le chargement, puis retirée lorsqu'il est terminé. Elle permet d'afficher visuellement que l'action est en cours.
+Q3 : Un skeleton montre la structure et l'emplacement du contenu qui va apparaître, ce qui aide l'utilisateur à comprendre ce qui se charge. Un simple rond indique seulement qu'une action est en cours.
+*/
+
 /* =========================================================
    TP3 — Une liste d'étudiants vivante
    Les parties marquées FOURNI fonctionnent déjà : ne pas les modifier.
@@ -55,10 +60,22 @@ function creerLigne(etu) {
    --------------------------------------------------------- */
 async function charger() {
   // TODO 1.2 : ajouter la classe is-loading sur zone
+  liste.classList.add('is-loading');
+
   // TODO 1.4 : try / catch / finally (voir l'énoncé)
   // TODO 1.5 : désactiver le bouton pendant le chargement
-  const etudiants = await apiGetEtudiants();
-  afficher(etudiants);
+  
+  
+  try {
+    btnCharger.disabled = true;
+    const etudiants = await apiGetEtudiants();
+    afficher(etudiants);
+  } catch (e) {
+  } finally {
+    btnCharger.disabled = false;
+    liste.classList.remove('is-loading');
+  }
+  
   // TODO 3.2 : toasts de succès et d'erreur
 }
 
